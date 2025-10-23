@@ -5,7 +5,6 @@ import 'dotenv/config'
 
 //Import the Fruit model from the "fruit.js" document in the "models" folder
 import Fruit from './models/fruits.js';
-import e from 'express';
 
 //Create the application
 const app = express();
@@ -13,6 +12,7 @@ const app = express();
 //Middleware
 app.use(morgan('dev'));
 app.use(express.urlencoded());
+app.use (express.static('public'));
 
 
 //Routes
@@ -20,6 +20,8 @@ app.use(express.urlencoded());
 app.get('/', async (req, res) => {
     res.render('index.ejs')
 })
+
+
 
 //Render a form to create a new fruit
 app.get('/fruits/new', (req, res) => {
@@ -36,10 +38,14 @@ app.post("/fruits", async (req, res) => {
 //Create a page to list all fruits in the data base
 app.get('/fruits', async (req, res)=>{
     const allFruits = await Fruit.find();
-    console.log (allFruits)
     res.render('fruits/index.ejs',{fruits:allFruits})
 })
 
+//Create a page to list all features of a single
+app.get('/fruits/:fruitId', async (req,res)=>{
+    const foundFruit = await Fruit.findById(req.params.fruitId)
+    res.render('fruits/show.ejs', {fruit:foundFruit});
+})
 
 //Connections
 //Connect to the Mongoose database
