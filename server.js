@@ -2,6 +2,7 @@ import express, { response } from 'express';
 import morgan from 'morgan';
 import mongoose from 'mongoose';
 import 'dotenv/config'
+import methodOverride from 'method-override'
 
 //Import the Fruit model from the "fruit.js" document in the "models" folder
 import Fruit from './models/fruits.js';
@@ -13,6 +14,7 @@ const app = express();
 app.use(morgan('dev'));
 app.use(express.urlencoded());
 app.use (express.static('public'));
+app.use (methodOverride('_method'));
 
 
 //Routes
@@ -20,8 +22,6 @@ app.use (express.static('public'));
 app.get('/', async (req, res) => {
     res.render('index.ejs')
 })
-
-
 
 //Render a form to create a new fruit
 app.get('/fruits/new', (req, res) => {
@@ -46,6 +46,19 @@ app.get('/fruits/:fruitId', async (req,res)=>{
     const foundFruit = await Fruit.findById(req.params.fruitId)
     res.render('fruits/show.ejs', {fruit:foundFruit});
 })
+
+//Delete a fruit-i.e. delete a document from the collection
+app.delete("/fruits/:fruitId", async (req,res) =>{
+    await Fruit.findByIdAndDelete (req.params.fruitId)
+    res.redirect("/fruits");
+})
+
+//Updatea fruit
+app.get("/fruits/:fruitId/edit", async (req,res)=>{
+    const foundFruit= await Fruit.findById (req.params.fruitId);
+    console.log(`i have found the fruit ${foundFruit}`);
+    res.render(`fruits/edit.ejs`,{fruit:foundFruit});
+});
 
 //Connections
 //Connect to the Mongoose database
